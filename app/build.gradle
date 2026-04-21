@@ -108,4 +108,4 @@ task downloadAndExtractArchives(type: DefaultTask) {
         }
     }
 }
-preBuild.dependsOn downloadAndExtractArchives
+// preBuild.dependsOn downloadAndExtractArchives

@@ -27,6 +27,33 @@ jobs:
         sdkmanager --install "ndk;25.2.9519653"
         sdkmanager --install "cmake;3.22.1"
 
+    - name: Download Paddle Lite libraries
+      run: |
+        mkdir -p PaddleLite/cxx/include PaddleLite/cxx/libs/arm64-v8a PaddleLite/cxx/libs/armeabi-v7a
+        curl -sL https://paddleocr.bj.bcebos.com/libs/paddle_lite_libs_v2_10.tar.gz | tar xz --strip-components=0 -C . 2>/dev/null || true
+        ls -la PaddleLite/ || true
+
+    - name: Download OpenCV SDK
+      run: |
+        curl -sL https://paddlelite-demo.bj.bcebos.com/libs/android/opencv-4.2.0-android-sdk.tar.gz -o /tmp/opencv.tar.gz
+        file /tmp/opencv.tar.gz
+        mkdir -p OpenCV
+        tar xzf /tmp/opencv.tar.gz -C . 2>/dev/null || true
+        ls -la OpenCV/ || true
+
+    - name: Download OCR Models
+      run: |
+        mkdir -p app/src/main/assets/models app/src/main/assets/labels
+        curl -sL https://paddleocr.bj.bcebos.com/PP-OCRv3/chinese/ch_PP-OCRv3_det_slim_infer.tar -o /tmp/det.tar
+        tar xf /tmp/det.tar -C app/src/main/assets/models/ 2>/dev/null || true
+        curl -sL https://paddleocr.bj.bcebos.com/PP-OCRv3/chinese/ch_PP-OCRv3_rec_slim_infer.tar -o /tmp/rec.tar
+        tar xf /tmp/rec.tar -C app/src/main/assets/models/ 2>/dev/null || true
+        curl -sL https://paddleocr.bj.bcebos.com/dygraph_v2.0/ch/ch_ppocr_mobile_v2.0_cls_slim_infer.tar -o /tmp/cls.tar
+        tar xf /tmp/cls.tar -C app/src/main/assets/models/ 2>/dev/null || true
+        curl -sL https://paddleocr.bj.bcebos.com/dygraph_v2.0/lite/ch_dict.tar.gz -o /tmp/dict.tar.gz
+        tar xzf /tmp/dict.tar.gz -C app/src/main/assets/labels/ 2>/dev/null || true
+        ls -la app/src/main/assets/ || true
+
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
 
