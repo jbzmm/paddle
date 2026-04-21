@@ -86,9 +86,9 @@ public class Predictor {
         config.useOpencl = useOpencl;
         config.cpuThreadNum = cpuThreadNum;
         config.cpuPower = cpuPowerMode;
-        config.detModelFilename = realPath + File.separator + "ch_PP-OCRv3_det_slim_infer/inference.nb";
-        config.recModelFilename = realPath + File.separator + "ch_PP-OCRv3_rec_slim_infer/inference.nb";
-        config.clsModelFilename = realPath + File.separator + "ch_ppocr_mobile_v2.0_cls_slim_infer/inference.nb";
+        config.detModelFilename = realPath + File.separator + "det_db.nb";
+        config.recModelFilename = realPath + File.separator + "rec_crnn.nb";
+        config.clsModelFilename = realPath + File.separator + "cls.nb";
         Log.i("Predictor", "model path" + config.detModelFilename + " ; " + config.recModelFilename + ";" + config.clsModelFilename);
         paddlePredictor = new OCRPredictorNative(config);
 

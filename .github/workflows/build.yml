@@ -9,8 +9,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    env:
-      ANDROID_NDK_HOME: /usr/local/lib/android/sdk/ndk/25.2.9519653
 
     steps:
     - uses: actions/checkout@v4
@@ -32,31 +30,38 @@ jobs:
     - name: Download Paddle Lite libraries
       run: |
         mkdir -p PaddleLite
-        curl -sL https://paddleocr.bj.bcebos.com/libs/paddle_lite_libs_v2_10.tar.gz | tar xz -C PaddleLite 2>/dev/null || true
-        ls -la PaddleLite/cxx/include/ || true
-        ls -la PaddleLite/cxx/libs/arm64-v8a/ || true
+        curl -sL https://paddleocr.bj.bcebos.com/libs/paddle_lite_libs_v2_10.tar.gz -o /tmp/paddle_lite.tar.gz
+        tar xzf /tmp/paddle_lite.tar.gz -C PaddleLite/
+        echo "=== PaddleLite structure ==="
+        find PaddleLite -maxdepth 4 -type f | head -30
 
     - name: Download OpenCV SDK
       run: |
         curl -sL https://paddlelite-demo.bj.bcebos.com/libs/android/opencv-4.2.0-android-sdk.tar.gz -o /tmp/opencv.tar.gz
-        file /tmp/opencv.tar.gz
         mkdir -p OpenCV
-        tar xzf /tmp/opencv.tar.gz -C OpenCV 2>/dev/null || true
-        ls -la OpenCV/sdk/native/jni/ || true
+        tar xzf /tmp/opencv.tar.gz -C OpenCV/
+        # Check if there's a nested directory
+        if [ -d "OpenCV/OpenCV-android-sdk" ]; then
+          mv OpenCV/OpenCV-android-sdk/* OpenCV/ || true
+        fi
+        echo "=== OpenCV structure ==="
+        find OpenCV -maxdepth 4 -type d | head -20
 
-    - name: Download OCR Models
+    - name: Download OCR Models (nb format for PaddleLite)
       run: |
         mkdir -p app/src/main/assets/models app/src/main/assets/labels
-        curl -sL https://paddleocr.bj.bcebos.com/PP-OCRv3/chinese/ch_PP-OCRv3_det_slim_infer.tar -o /tmp/det.tar
-        tar xf /tmp/det.tar -C app/src/main/assets/models/ 2>/dev/null || true
-        curl -sL https://paddleocr.bj.bcebos.com/PP-OCRv3/chinese/ch_PP-OCRv3_rec_slim_infer.tar -o /tmp/rec.tar
-        tar xf /tmp/rec.tar -C app/src/main/assets/models/ 2>/dev/null || true
-        curl -sL https://paddleocr.bj.bcebos.com/dygraph_v2.0/ch/ch_ppocr_mobile_v2.0_cls_slim_infer.tar -o /tmp/cls.tar
-        tar xf /tmp/cls.tar -C app/src/main/assets/models/ 2>/dev/null || true
-        curl -sL https://paddleocr.bj.bcebos.com/dygraph_v2.0/lite/ch_dict.tar.gz -o /tmp/dict.tar.gz
-        tar xzf /tmp/dict.tar.gz -C app/src/main/assets/labels/ 2>/dev/null || true
-        ls -la app/src/main/assets/models/ || true
-        ls -la app/src/main/assets/labels/ || true
+        # PP-OCRv3 det model (.nb format)
+        curl -sL https://paddleocr.bj.bcebos.com/PP-OCRv3/chinese/ch_PP-OCRv3_det_slim_infer.nb -o app/src/main/assets/models/det_db.nb
+        # PP-OCRv3 rec model (.nb format)
+        curl -sL https://paddleocr.bj.bcebos.com/PP-OCRv3/chinese/ch_PP-OCRv3_rec_slim_infer.nb -o app/src/main/assets/models/rec_crnn.nb
+        # cls model (.nb format)
+        curl -sL https://paddleocr.bj.bcebos.com/PP-OCRv2/lite/ch_ppocr_mobile_v2.0_cls_slim_opt.nb -o app/src/main/assets/models/cls.nb
+        # dictionary
+        curl -sL https://paddleocr.bj.bcebos.com/dygraph_v2.0/lite/ch_dict.tar.gz | tar xz -C app/src/main/assets/labels/
+        echo "=== Models ==="
+        ls -lh app/src/main/assets/models/
+        echo "=== Labels ==="
+        ls -lh app/src/main/assets/labels/
 
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
@@ -65,7 +70,7 @@ jobs:
       run: echo "ndk.dir=/usr/local/lib/android/sdk/ndk/25.2.9519653" > local.properties
 
     - name: Build Debug APK
-      run: ./gradlew assembleDebug
+      run: ./gradlew assembleDebug 2>&1 | tail -50
 
     - name: Upload Debug APK
       uses: actions/upload-artifact@v4
@@ -74,7 +79,7 @@ jobs:
         path: app/build/outputs/apk/debug/app-debug.apk
 
     - name: Build Release APK
-      run: ./gradlew assembleRelease
+      run: ./gradlew assembleRelease 2>&1 | tail -30
 
     - name: Upload Release APK
       uses: actions/upload-artifact@v4

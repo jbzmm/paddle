@@ -32,26 +32,20 @@ target_link_libraries(Native
     ${log-lib})
 
 add_custom_command(TARGET Native POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
     ${PaddleLite_DIR}/cxx/libs/${ANDROID_ABI}/libc++_shared.so
     ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libc++_shared.so)
 
 add_custom_command(TARGET Native POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
     ${PaddleLite_DIR}/cxx/libs/${ANDROID_ABI}/libpaddle_light_api_shared.so
     ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libpaddle_light_api_shared.so)
 
-add_custom_command(TARGET Native POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy
-    ${PaddleLite_DIR}/cxx/libs/${ANDROID_ABI}/libhiai.so
-    ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libhiai.so)
-
-add_custom_command(TARGET Native POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy
-    ${PaddleLite_DIR}/cxx/libs/${ANDROID_ABI}/libhiai_ir.so
-    ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libhiai_ir.so)
-
-add_custom_command(TARGET Native POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy
-    ${PaddleLite_DIR}/cxx/libs/${ANDROID_ABI}/libhiai_ir_build.so
-    ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libhiai_ir_build.so)
+# Optional: copy NPU (HiAI) libs if they exist
+file(GLOB HIAI_LIBS "${PaddleLite_DIR}/cxx/libs/${ANDROID_ABI}/libhiai*.so")
+foreach(HIAI_LIB ${HIAI_LIBS})
+    add_custom_command(TARGET Native POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        ${HIAI_LIB}
+        ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/)
+endforeach()

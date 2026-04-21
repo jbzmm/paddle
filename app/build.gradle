@@ -47,8 +47,11 @@ dependencies {
 }
 
 // Download PaddleLite libs, OpenCV SDK, and OCR models
+// Models are downloaded as .nb files (PaddleLite optimized format) for PP-OCRv3
+// In CI, these are downloaded by the GitHub Actions workflow
+// For local development, run: ./gradlew downloadAndExtractArchives
 def archives = [
-    // Paddle Lite v1.12 libraries
+    // Paddle Lite v2.10 libraries
     [
         'src' : 'https://paddleocr.bj.bcebos.com/libs/paddle_lite_libs_v2_10.tar.gz',
         'dest': 'PaddleLite'
@@ -58,19 +61,19 @@ def archives = [
         'src' : 'https://paddlelite-demo.bj.bcebos.com/libs/android/opencv-4.2.0-android-sdk.tar.gz',
         'dest': 'OpenCV'
     ],
-    // PP-OCRv3 detection model (det)
+    // PP-OCRv3 detection model (det) - nb format
     [
-        'src' : 'https://paddleocr.bj.bcebos.com/PP-OCRv3/chinese/ch_PP-OCRv3_det_slim_infer.tar',
+        'src' : 'https://paddleocr.bj.bcebos.com/PP-OCRv3/chinese/ch_PP-OCRv3_det_slim_infer.nb',
         'dest' : 'src/main/assets/models'
     ],
-    // PP-OCRv3 recognition model (rec)
+    // PP-OCRv3 recognition model (rec) - nb format
     [
-        'src' : 'https://paddleocr.bj.bcebos.com/PP-OCRv3/chinese/ch_PP-OCRv3_rec_slim_infer.tar',
+        'src' : 'https://paddleocr.bj.bcebos.com/PP-OCRv3/chinese/ch_PP-OCRv3_rec_slim_infer.nb',
         'dest' : 'src/main/assets/models'
     ],
-    // Classification model (cls)
+    // Classification model (cls) - nb format
     [
-        'src' : 'https://paddleocr.bj.bcebos.com/dygraph_v2.0/ch/ch_ppocr_mobile_v2.0_cls_slim_infer.tar',
+        'src' : 'https://paddleocr.bj.bcebos.com/PP-OCRv2/lite/ch_ppocr_mobile_v2.0_cls_slim_opt.nb',
         'dest' : 'src/main/assets/models'
     ],
     // Dictionary for Chinese OCR
