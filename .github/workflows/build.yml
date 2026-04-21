@@ -24,7 +24,7 @@ jobs:
 
     - name: Install NDK and CMake
       run: |
-        sdkmanager --install "ndk;25.2.9519653"
+        sdkmanager --install "ndk;23.2.8568313"
         sdkmanager --install "cmake;3.22.1"
 
     - name: Download Paddle Lite libraries
@@ -35,11 +35,11 @@ jobs:
         echo "=== PaddleLite structure ==="
         find PaddleLite -maxdepth 4 -type f | head -30
 
-    - name: Fix PaddleLite .so symbol tables for NDK 25 lld compatibility
+    - name: Fix PaddleLite .so symbol tables for NDK lld compatibility
       run: |
-        # NDK 25 lld rejects .so files with local symbols in global part of symbol table
-        # Use llvm-strip to fix the symbol table
-        STRIP=/usr/local/lib/android/sdk/ndk/25.2.9519653/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-strip
+        # lld may reject .so files with local symbols in global part of symbol table
+        # Use llvm-strip to clean up the symbol table
+        STRIP=/usr/local/lib/android/sdk/ndk/23.2.8568313/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-strip
         for so in $(find PaddleLite -name "*.so" -type f); do
           echo "Fixing: $so"
           $STRIP --strip-unneeded "$so" || true
@@ -79,7 +79,7 @@ jobs:
       run: chmod +x gradlew
 
     - name: Configure NDK path
-      run: echo "ndk.dir=/usr/local/lib/android/sdk/ndk/25.2.9519653" > local.properties
+      run: echo "ndk.dir=/usr/local/lib/android/sdk/ndk/23.2.8568313" > local.properties
 
     - name: Build Debug APK
       run: |
