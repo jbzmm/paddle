@@ -61,6 +61,9 @@ jobs:
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
 
+    - name: Configure NDK path
+      run: echo "ndk.dir=/usr/local/lib/android/sdk/ndk/25.2.9519653" > local.properties
+
     - name: Build Debug APK
       run: ./gradlew assembleDebug
 
